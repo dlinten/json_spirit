@@ -1,61 +1,54 @@
-cmake_minimum_required(VERSION 2.6)
-
-project(json_spirit)
-
-hunter_add_package(Boost)
-
-find_package(Boost 1.34 REQUIRED)
-include_directories(${Boost_INCLUDE_DIR})
-
-####
-# Sources macro that handles both normal sources and test sources
-# Test sources are detected as a result of a test prefix test_<test_name>.cpp
-macro (add_sources)
-    file (RELATIVE_PATH _relPath "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
-    foreach (_src ${ARGN})
-        if (_relPath)
-            if("${_src}" MATCHES "(test_*)")
-                list (APPEND TST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/${_src}")
-            else()
-                list (APPEND SRCS "${CMAKE_CURRENT_SOURCE_DIR}/${_src}")
-            endif()
-        else()
-            if("${_src}" MATCHES "(test_*)")
-                list (APPEND TST_SRCS "${_src}")
-            else()
-                list (APPEND SRCS "${_src}")
-            endif()
-        endif()
-    endforeach()
-    if (_relPath)
-        # propagate SRCS to parent directory
-        set (SRCS ${SRCS} PARENT_SCOPE)
-        set (TST_SRCS ${TST_SRCS} PARENT_SCOPE)
-    endif()
-endmacro()
-
-include_directories(json_spirit)
-add_subdirectory(json_spirit)
-add_library(json_spirit STATIC ${SRCS})
+# Copyright (c) Glyn Matthews 2012, 2013.
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
 
 
-install(
-  FILES
-  ${CMAKE_SOURCE_DIR}/json_spirit/json_spirit.h
-  ${CMAKE_SOURCE_DIR}/json_spirit/json_spirit_error_position.h
-  ${CMAKE_SOURCE_DIR}/json_spirit/json_spirit_reader.h
-  ${CMAKE_SOURCE_DIR}/json_spirit/json_spirit_reader_template.h
-  ${CMAKE_SOURCE_DIR}/json_spirit/json_spirit_stream_reader.h
-  ${CMAKE_SOURCE_DIR}/json_spirit/json_spirit_utils.h
-  ${CMAKE_SOURCE_DIR}/json_spirit/json_spirit_value.h
-  ${CMAKE_SOURCE_DIR}/json_spirit/json_spirit_writer.h
-  ${CMAKE_SOURCE_DIR}/json_spirit/json_spirit_writer_template.h
-  ${CMAKE_SOURCE_DIR}/json_spirit/json_spirit_writer_options.h
-  DESTINATION include)
+cmake_minimum_required(VERSION 2.8)
+project(JSONSpirit)
 
-install(
-  FILES
-  ${CMAKE_BINARY_DIR}/json_spirit/libjson_spirit.a
-  DESTINATION lib)
+find_package(Threads REQUIRED)
 
-include(CPack)
+if(BUILD_SHARED_LIBS)
+  set(Boost_USE_STATIC_LIBS OFF)
+else()
+  set(Boost_USE_STATIC_LIBS ON)
+endif()
+
+set(Boost_USE_MULTITHREADED ON)
+find_package(Boost 1.53 REQUIRED system filesystem)
+
+include_directories(${Boost_INCLUDE_DIRS})
+
+set(CMAKE_VERBOSE_MAKEFILE true)
+
+if (${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
+  INCLUDE(CheckCXXCompilerFlag)
+  CHECK_CXX_COMPILER_FLAG(-std=c++11 HAVE_STD11)
+
+  if (HAVE_STD11)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+  else()
+    message(FATAL_ERROR "No C++ 11 support (Compiler does not define -std=c++11).")
+  endif()
+  message("C++ Flags: ${CMAKE_CXX_FLAGS} link flags: ${CMAKE_CXX_LINK_FLAGS}")
+elseif(${CMAKE_CXX_COMPILER_ID} MATCHES Clang)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -ftemplate-depth=1024")
+  if (NOT CPP-NETLIB_DISABLE_LIBCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+  endif()
+  message("C++ Flags: ${CMAKE_CXX_FLAGS} link flags: ${CMAKE_CXX_LINK_FLAGS}")
+endif()
+
+
+if (MSVC)
+  add_definitions(-D_SCL_SECURE_NO_WARNINGS -D_VARIADIC_MAX=10)
+endif(MSVC)
+if (WIN32)
+  add_definitions(-D_WIN32_WINNT=0x0501)
+endif(WIN32)
+
+add_subdirectory(src)
+
+#propagate sources to parent scope for one-lib-build
+set(JSONSpirit_SRCS ${JSONSpirit_SRCS} PARENT_SCOPE)
