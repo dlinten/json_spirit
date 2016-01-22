@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 
 project(json_spirit)
 
+hunter_add_package(Boost)
+
 find_package(Boost 1.34 REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
