@@ -2,7 +2,6 @@
 
 include("@PACKAGE_CONF_DEST@/JSONSpiritTargets.cmake")
 
-# https://github.com/forexample/package-example
 function(_apply_release_imported_config_as_default tgt)
   get_target_property(location ${tgt} IMPORTED_LOCATION_RELEASE)
   get_target_property(link ${tgt} IMPORTED_LINK_INTERFACE_LIBRARIES_RELEASE)
