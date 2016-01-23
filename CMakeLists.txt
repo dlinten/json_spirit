@@ -41,5 +41,3 @@ endif()
 
 add_subdirectory(src)
 
-#propagate sources to parent scope for one-lib-build
-set(JSON_SPIRIT_SRCS ${JSON_SPIRIT_SRCS} PARENT_SCOPE)
