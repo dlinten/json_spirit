@@ -5,22 +5,21 @@
 
 
 cmake_minimum_required(VERSION 2.8)
+
+include("cmake/HunterGate.cmake")
+HunterGate(
+    URL "https://github.com/ruslo/hunter/archive/v0.8.1.tar.gz"
+    SHA1 "a9bd96ab113f3af870b13cd05cf4e75b8848cf4a"
+)
+
 project(JSONSpirit)
 
-find_package(Threads REQUIRED)
+hunter_add_package(Boost COMPONENTS system filesystem)
+hunter_add_package(Sugar)
 
-if(BUILD_SHARED_LIBS)
-  set(Boost_USE_STATIC_LIBS OFF)
-else()
-  set(Boost_USE_STATIC_LIBS ON)
-endif()
+include("${SUGAR_ROOT}/cmake/Sugar")
 
-set(Boost_USE_MULTITHREADED ON)
-find_package(Boost 1.53 REQUIRED system filesystem)
-
-include_directories(${Boost_INCLUDE_DIRS})
-
-set(CMAKE_VERBOSE_MAKEFILE true)
+option(JSON_SPIRIT_BUILD_SHARED_LIBS "Build JSON Spirit shared libraries" OFF)
 
 if (${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
   INCLUDE(CheckCXXCompilerFlag)
@@ -34,19 +33,11 @@ if (${CMAKE_CXX_COMPILER_ID} MATCHES GNU)
   message("C++ Flags: ${CMAKE_CXX_FLAGS} link flags: ${CMAKE_CXX_LINK_FLAGS}")
 elseif(${CMAKE_CXX_COMPILER_ID} MATCHES Clang)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -ftemplate-depth=1024")
-  if (NOT CPP-NETLIB_DISABLE_LIBCXX)
+  if (NOT JSON_SPIRIT_DISABLE_LIBCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
   endif()
   message("C++ Flags: ${CMAKE_CXX_FLAGS} link flags: ${CMAKE_CXX_LINK_FLAGS}")
 endif()
-
-
-if (MSVC)
-  add_definitions(-D_SCL_SECURE_NO_WARNINGS -D_VARIADIC_MAX=10)
-endif(MSVC)
-if (WIN32)
-  add_definitions(-D_WIN32_WINNT=0x0501)
-endif(WIN32)
 
 add_subdirectory(src)
 
