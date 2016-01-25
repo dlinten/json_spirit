@@ -24,4 +24,4 @@ function(_apply_release_imported_config_as_default tgt)
   endif()
 endfunction()
 
-_apply_release_imported_config_as_default(json-spirit)
+_apply_release_imported_config_as_default(json_spirit)

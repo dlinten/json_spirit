@@ -26,25 +26,25 @@ configure_package_config_file(
     PATH_VARS CONF_DEST
 )
 
-find_package(Boost 1.53 REQUIRED system filesystem)
+find_package(Boost 1.59 REQUIRED system filesystem)
 
-add_library(json-spirit ${JSON_SPIRIT_TYPE} ${JSON_SPIRIT_SOURCES})
+add_library(json_spirit ${JSON_SPIRIT_TYPE} ${JSON_SPIRIT_SOURCES})
 target_include_directories(
-    json-spirit
+    json_spirit
     PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>"
     "$<INSTALL_INTERFACE:${INCL_DEST}>"
 )
-target_include_directories(json-spirit SYSTEM PUBLIC ${Boost_INCLUDE_DIR})
-target_link_libraries(json-spirit PUBLIC ${Boost_LIBRARIES})
+target_include_directories(json_spirit SYSTEM PUBLIC ${Boost_INCLUDE_DIR})
+target_link_libraries(json_spirit PUBLIC ${Boost_LIBRARIES})
 
 if(MSVC)
-  target_compile_definitions(json-spirit PUBLIC BOOST_ALL_NO_LIB=1)
+  target_compile_definitions(json_spirit PUBLIC BOOST_ALL_NO_LIB=1)
 endif()
 
 if(MSVC)
   target_compile_definitions(
-      json-spirit
+      json_spirit
       PUBLIC
       -D_SCL_SECURE_NO_WARNINGS -D_VARIADIC_MAX=10
   )
@@ -52,16 +52,27 @@ endif()
 
 if(WIN32)
   target_compile_definitions(
-      json-spirit
+      json_spirit
       PUBLIC
       -D_WIN32_WINNT=0x0501
   )
 endif()
 
-install(TARGETS json-spirit DESTINATION ${LIB_DEST} EXPORT JSONSpiritTargets)
-install(
-    DIRECTORY json-spirit DESTINATION ${INCL_DEST} FILES_MATCHING PATTERN "*.h"
+set(IFACE_FILES
+    json_spirit_reader.h
+    json_spirit_value.h
+    json_spirit_writer.h
+    json_spirit.h
+    json_spirit_error_position.h
+    json_spirit_reader_template.h
+    json_spirit_stream_reader.h
+    json_spirit_utils.h
+    json_spirit_writer_options.h
+    json_spirit_writer_template.h
 )
+
+install(TARGETS json_spirit DESTINATION ${LIB_DEST} EXPORT JSONSpiritTargets)
+install(FILES ${IFACE_FILES} DESTINATION ${INCL_DEST})
 install(EXPORT JSONSpiritTargets DESTINATION ${CONF_DEST})
 install(FILES "${json_spirit_config}" DESTINATION ${CONF_DEST})
 

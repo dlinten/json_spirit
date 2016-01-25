@@ -10,7 +10,6 @@ else()
 endif()
 
 include(sugar_files)
-include(sugar_include)
 
 sugar_files(
     JSON_SPIRIT_SOURCES
